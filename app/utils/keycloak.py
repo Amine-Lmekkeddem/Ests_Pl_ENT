@@ -55,7 +55,12 @@ async def verify_token(token: str = Security(oauth2_scheme)):
                             #audience=[settings.KEYCLOAK_CLIENT_ID, "account"],
                             )
 
-        return payload
+        #return payload
+        return{
+           "sub": payload.get("sub"),
+            "username": payload.get("preferred_username"),
+            "refresh_token": token,  # Pass refresh token for logout
+       }
 
     except JWTError as e:
         #raise HTTPException(status_code=401, detail=f"Invalid or expired token:{str(e)}")
@@ -69,3 +74,6 @@ async def check_user_role(token: str, required_roles: list):
     roles = payload.get("realm_access", {}).get("roles", [])
     if not any(role in roles for role in required_roles):
         raise HTTPException(status_code=403, detail="Access denied: Insufficient permissions")
+    
+
+    
